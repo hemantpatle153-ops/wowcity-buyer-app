@@ -8,7 +8,10 @@ import { createEndpoints } from './endpoints';
 import { createMockFetch } from './mock/server';
 import { createSessionManager } from './session';
 
-export const isMock = process.env.EXPO_PUBLIC_MOCK === '1' || !process.env.EXPO_PUBLIC_API_URL;
+// Mock when asked (EXPO_PUBLIC_MOCK=1), or in development when no API URL is set.
+// EXPO_PUBLIC_MOCK=0 (the production profile) never falls back to demo data.
+export const isMock =
+  process.env.EXPO_PUBLIC_MOCK === '1' || (process.env.EXPO_PUBLIC_MOCK !== '0' && !process.env.EXPO_PUBLIC_API_URL);
 export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://mock.wowcity.local/api/v1/public';
 
 const httpFetch: FetchLike = async (url, init) => {

@@ -34,7 +34,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       monochromeImage: './assets/android-icon-monochrome.png',
     },
     permissions: ['ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION'],
-    blockedPermissions: ['ACCESS_BACKGROUND_LOCATION'],
+    blockedPermissions: [
+      'ACCESS_BACKGROUND_LOCATION',
+      'READ_EXTERNAL_STORAGE',
+      'WRITE_EXTERNAL_STORAGE',
+      'SYSTEM_ALERT_WINDOW',
+    ],
     predictiveBackGestureEnabled: false,
     ...(mapEnabled && androidMapsKey
       ? { config: { googleMaps: { apiKey: androidMapsKey } } }
@@ -47,7 +52,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     'expo-router',
-    'expo-secure-store',
+    // No biometrics are used, so no Face ID prompt text.
+    ['expo-secure-store', { faceIDPermission: false }],
     'expo-image',
     'expo-sharing',
     'expo-web-browser',
@@ -66,8 +72,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'expo-location',
       {
         locationWhenInUsePermission: LOCATION_REASON,
+        // Only "while using the app" is ever requested.
+        locationAlwaysAndWhenInUsePermission: false,
+        locationAlwaysPermission: false,
+        motionUsagePermission: false,
         isIosBackgroundLocationEnabled: false,
         isAndroidBackgroundLocationEnabled: false,
+        isAndroidForegroundServiceEnabled: false,
+        isAndroidMotionActivityEnabled: false,
       },
     ],
   ],
