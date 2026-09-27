@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ComponentType } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,10 +14,16 @@ import { SearchField } from '@/components/SearchField';
 import { ShopAvatar } from '@/components/ShopCard';
 import { Skeleton } from '@/components/Skeleton';
 import { Text } from '@/components/Text';
+import type { StoreSummary } from '@/api/types';
+import { MAP_ENABLED } from '@/lib/config';
 import { flattenPages, useSearchFeed, useStore } from '@/hooks/queries';
 import { formatDistance, formatPhoneForDisplay } from '@/lib/format';
 import { callShop, canGetDirections, openDirections } from '@/lib/maps';
 import { useTheme } from '@/theme/ThemeProvider';
+
+type MapProps = { shops: StoreSummary[]; compact?: boolean };
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const ShopsMap: ComponentType<MapProps> | null = MAP_ENABLED ? require('@/components/ShopsMap').default : null;
 
 export default function ShopScreen() {
   const { storeId } = useLocalSearchParams<{ storeId: string }>();
@@ -96,6 +102,11 @@ export default function ShopScreen() {
               </Text>
             </View>
           ) : null}
+          {ShopsMap && s.latitude !== undefined && s.longitude !== undefined ? (
+            <View style={[styles.miniMap, { borderRadius: radius.control, borderColor: colors.border }]}>
+              <ShopsMap shops={[s]} compact />
+            </View>
+          ) : null}
           {s.phone ? (
             <View style={styles.infoRow}>
               <Icon name="call-outline" size={20} color="textMuted" />
@@ -163,6 +174,7 @@ const styles = StyleSheet.create({
   info: { marginHorizontal: 16, marginTop: 12, padding: 14, gap: 10, borderWidth: StyleSheet.hairlineWidth },
   infoRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
   actions: { flexDirection: 'row', gap: 10, marginTop: 4 },
+  miniMap: { height: 150, overflow: 'hidden', borderWidth: StyleSheet.hairlineWidth },
   private: { paddingHorizontal: 32, marginTop: 8 },
   searchWrap: { paddingHorizontal: 16, marginTop: 16, marginBottom: 16 },
 });

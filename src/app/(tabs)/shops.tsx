@@ -15,7 +15,7 @@ import { MAP_ENABLED } from '@/lib/config';
 import { RADIUS_OPTIONS, useSettings } from '@/state/settings';
 import { useTheme } from '@/theme/ThemeProvider';
 
-type MapProps = { shops: StoreSummary[]; center?: { lat: number; lng: number } };
+type MapProps = { shops: StoreSummary[]; center?: { lat: number; lng: number }; compact?: boolean };
 // Loaded only when the map flag is on, so builds without a Maps key never touch react-native-maps.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const ShopsMap: ComponentType<MapProps> | null = MAP_ENABLED ? require('@/components/ShopsMap').default : null;
