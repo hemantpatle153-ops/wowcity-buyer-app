@@ -23,5 +23,7 @@ Files are named `<mode>-<nn>-<screen>.jpg`:
 | 14 | Appearance |
 | 15 | Sign in (opened by tapping Save while signed out) |
 | 16 | After entering the code: signed in and the save completed |
+| 17 | Saved (signed in) |
+| 18 | Delete account confirmation sheet |
 
 Modes: `light`, `dark`, `eyeComfort` (all screens), `amoled` with Extra large text (`-xlarge`, a few screens).

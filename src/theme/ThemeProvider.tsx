@@ -1,6 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { AccessibilityInfo, StyleSheet, useColorScheme, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, {
+  ReducedMotionConfig,
+  ReduceMotion,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { useState } from 'react';
 
 import { useSettings } from '@/state/settings';
@@ -65,6 +71,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   return (
     <ThemeContext.Provider value={theme}>
+      {/* Every Reanimated animation follows the in-app Reduce motion switch (or the phone setting). */}
+      <ReducedMotionConfig mode={appearance.reduceMotion === 'on' ? ReduceMotion.Always : ReduceMotion.System} />
       <View style={[styles.fill, { backgroundColor: theme.colors.bg }]}>
         {children}
         <ThemeCrossFade color={theme.colors.bg} reduceMotion={theme.reduceMotion} />

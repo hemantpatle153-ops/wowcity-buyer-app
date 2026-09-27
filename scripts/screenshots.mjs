@@ -165,8 +165,17 @@ for (const mode of modes) {
   await page.getByText('Saved', { exact: true }).first().waitFor({ timeout: 20000 });
   await page.waitForTimeout(800);
   await shot(page, `${mode}-16-saved-after-sign-in`);
+  // Mock accounts persist (like the app's demo mode), so a reload stays signed in.
   await page.goto(`${base}/saved`);
-  await page.waitForTimeout(300);
+  await page.getByText(/1 saved/).waitFor({ timeout: 20000 });
+  await shot(page, `${mode}-17-saved`);
+
+  await page.goto(`${base}/account`);
+  await page.getByText('Delete account').waitFor({ timeout: 20000 });
+  await page.getByText('Delete account').click();
+  await page.getByTestId('confirm-delete').waitFor();
+  await page.waitForTimeout(600);
+  await shot(page, `${mode}-18-delete-account`);
   await context.close();
 }
 

@@ -39,8 +39,8 @@ export default function Account() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const signedIn = status === 'signedIn' && !!user;
-  const who = user?.name || user?.email || (user?.phone ? formatPhoneForDisplay(user.phone) : 'WowCity buyer');
+  // While the session is being restored, show the cached profile rather than a guest flash.
+  const signedIn = status !== 'signedOut' && !!user;
 
   const forgetLocalAccount = async () => {
     await session.clear();
@@ -99,7 +99,13 @@ export default function Account() {
           {signedIn ? (
             <>
               <View style={styles.profileHead}>
-                <ShopAvatar name={user?.name || who} size={56} />
+                {user?.name ? (
+                  <ShopAvatar name={user.name} size={56} />
+                ) : (
+                  <View style={[styles.guest, { backgroundColor: colors.accentSoft }]}>
+                    <Icon name="person" size={26} color="accent" />
+                  </View>
+                )}
                 <View style={styles.fill}>
                   <Text variant="subtitle" numberOfLines={1}>
                     {user?.name || 'Add your name'}

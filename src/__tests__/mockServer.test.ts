@@ -71,3 +71,19 @@ describe('mock server', () => {
     expect(normaliseIdentifier('12345')).toBeNull();
   });
 });
+
+describe('mock server persistence', () => {
+  it('keeps demo accounts and favourites across restarts', async () => {
+    let saved: string | null = null;
+    const persistence = { load: async () => saved, save: async (j: string) => void (saved = j) };
+    const first = createEndpoints(
+      createApiClient({ baseUrl: 'https://m/api/v1/public', fetch: createMockFetch({ latencyMs: [0, 0], persistence }) }),
+    );
+    const session = await first.verifyOtp('demo@wowcity.in', '123456');
+    // A restarted app: new mock server instance, same storage.
+    const fetch2 = createMockFetch({ latencyMs: [0, 0], persistence });
+    const second = createEndpoints(createApiClient({ baseUrl: 'https://m/api/v1/public', fetch: fetch2 }));
+    const refreshed = await second.refresh(session.refreshToken);
+    expect(refreshed.user.email).toBe('demo@wowcity.in');
+  });
+});

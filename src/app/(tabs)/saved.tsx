@@ -29,7 +29,7 @@ export default function Saved() {
     </View>
   );
 
-  if (status !== 'signedIn') {
+  if (status === 'signedOut') {
     return (
       <View style={styles.fill}>
         {header}
@@ -49,7 +49,7 @@ export default function Saved() {
       testID="saved-grid"
       header={header}
       items={items}
-      loading={favs.isLoading}
+      loading={status === 'unknown' || favs.isLoading}
       error={favs.error}
       hasNextPage={favs.hasNextPage}
       fetchingNextPage={favs.isFetchingNextPage}

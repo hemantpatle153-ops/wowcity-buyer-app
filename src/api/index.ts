@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { tokenStorage } from '@/lib/tokenStorage';
 import { useAuth } from '@/state/auth';
 
@@ -14,7 +16,12 @@ const httpFetch: FetchLike = async (url, init) => {
   return { status: res.status, ok: res.ok, json: () => res.json() };
 };
 
-const transport: FetchLike = isMock ? createMockFetch() : httpFetch;
+const MOCK_KEY = 'wowcity.mockServer';
+const transport: FetchLike = isMock
+  ? createMockFetch({
+      persistence: { load: () => AsyncStorage.getItem(MOCK_KEY), save: (json) => AsyncStorage.setItem(MOCK_KEY, json) },
+    })
+  : httpFetch;
 
 // A client without auth hooks for the refresh call itself (no recursion).
 const bareApi = createEndpoints(createApiClient({ baseUrl: API_BASE_URL, fetch: transport }));

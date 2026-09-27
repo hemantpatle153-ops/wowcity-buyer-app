@@ -272,10 +272,35 @@ function respond(status: number, payload: unknown): HttpResponse {
   return { status, ok: status >= 200 && status < 300, json: async () => payload };
 }
 
-export type MockOptions = { latencyMs?: [number, number]; state?: MockState };
+/** Optional persistence so demo accounts survive app restarts (AsyncStorage in the app). */
+export type MockPersistence = { load(): Promise<string | null>; save(json: string): Promise<void> };
+
+export type MockOptions = { latencyMs?: [number, number]; state?: MockState; persistence?: MockPersistence };
+
+export function serializeMockState(s: MockState): string {
+  return JSON.stringify({ accounts: [...s.accounts], access: [...s.access], refresh: [...s.refresh], seq: s.seq });
+}
+
+export function restoreMockState(target: MockState, json: string) {
+  const raw = JSON.parse(json) as { accounts: [string, MockAccount][]; access: [string, string][]; refresh: [string, string][]; seq: number };
+  target.accounts = new Map(raw.accounts);
+  target.access = new Map(raw.access);
+  target.refresh = new Map(raw.refresh);
+  target.seq = raw.seq;
+}
 
 export function createMockFetch(opts: MockOptions = {}): FetchLike & { state: MockState } {
   const state = opts.state ?? createMockState();
+  let loaded: Promise<void> | null = null;
+  const ensureLoaded = () =>
+    (loaded ??= (async () => {
+      try {
+        const json = await opts.persistence?.load();
+        if (json) restoreMockState(state, json);
+      } catch {
+        // Corrupt demo data: start fresh.
+      }
+    })());
   const [minLatency, maxLatency] = opts.latencyMs ?? [250, 650];
 
   function authed(headers: Record<string, string>): MockAccount {
@@ -397,8 +422,11 @@ export function createMockFetch(opts: MockOptions = {}): FetchLike & { state: Mo
     const path = match?.[1] ?? '/';
     const query = parseQuery(match?.[2] ?? '');
     const body = init.body ? JSON.parse(init.body) : undefined;
+    await ensureLoaded();
     try {
-      return respond(200, { data: handle(init.method, path, query, init.headers, body) });
+      const data = handle(init.method, path, query, init.headers, body);
+      if (init.method !== 'GET') await opts.persistence?.save(serializeMockState(state)).catch(() => {});
+      return respond(200, { data });
     } catch (e) {
       if (e instanceof HttpError) return respond(e.status, { error: { code: e.code, message: e.message } });
       return respond(500, { error: { code: 'server_error', message: 'Something went wrong.' } });
