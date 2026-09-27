@@ -46,16 +46,16 @@ export function SaveButton({ storeId, productId, name }: { storeId: string; prod
         styles.btn,
         {
           borderRadius: radius.control + 4,
-          backgroundColor: saved ? colors.surface : colors.text,
-          borderColor: saved ? colors.heart : colors.text,
+          backgroundColor: saved ? colors.surface : colors.accent,
+          borderColor: saved ? colors.heart : colors.accent,
         },
       ]}
     >
       <Animated.View style={iconStyle}>
-        <Ionicons name={saved ? 'heart' : 'heart-outline'} size={24} color={saved ? colors.heart : colors.bg} />
+        <Ionicons name={saved ? 'heart' : 'heart-outline'} size={24} color={saved ? colors.heart : colors.accentText} />
       </Animated.View>
       <View>
-        <Text variant="label" style={{ color: saved ? colors.text : colors.bg }}>
+        <Text variant="label" style={{ color: saved ? colors.text : colors.accentText }}>
           {saved ? 'Saved' : 'Save'}
         </Text>
       </View>

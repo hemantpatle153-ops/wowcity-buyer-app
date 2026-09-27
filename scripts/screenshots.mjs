@@ -43,7 +43,7 @@ const settings = (mode, extra = {}) => ({
     onboarded: true,
     location: { kind: 'gps', lat: 23.2332, lng: 77.4243, label: 'MP Nagar, Bhopal' },
     radiusKm: 10,
-    appearance: { mode, accent: 'blue', textSize: 'default', reduceMotion: 'on', haptics: true },
+    appearance: { mode, accent: process.env.ACCENT ?? 'blue', textSize: process.env.TEXT_SIZE ?? 'default', reduceMotion: 'on', haptics: true },
     ...extra,
   },
   version: 1,
@@ -78,9 +78,12 @@ async function waitForImages(page) {
   await page.waitForTimeout(500);
 }
 
+const SUFFIX = process.env.TEXT_SIZE ? `-${process.env.TEXT_SIZE}` : '';
+const SHOTS = process.env.SHOTS ? new RegExp(process.env.SHOTS) : null; // e.g. SHOTS='02|04|08'
 async function shot(page, name) {
+  if (SHOTS && !SHOTS.test(name)) return;
   await waitForImages(page);
-  await page.screenshot({ path: join(OUT, `${name}.png`) });
+  await page.screenshot({ path: join(OUT, `${name}${SUFFIX}.jpg`), type: 'jpeg', quality: 80 });
   console.log('saved', name);
 }
 

@@ -63,12 +63,20 @@ npm run export:web && node scripts/screenshots.mjs   # screenshots → docs/scre
 - Never shows stock counts; sold-out items say "Sold out at this shop"; hidden fields are simply not shown
   ("Price in shop" when price hidden).
 
+- Product detail header fades in with the item name as the photos scroll away.
+- App icon, Android adaptive icon (with monochrome layer), splash and favicon (`scripts/make-icons.py`).
+- Tests (Jest, jest-expo): API client, token refresh, query params, mock server, favourites flow
+  (sign in → pending save completes), search filters, recent searches, formatting, theme contrast,
+  and component tests for ProductCard and HeartButton.
+- Screenshots of every key screen in Light, Dark and Eye Comfort, plus AMOLED at Extra large text:
+  `docs/screenshots/` (see its README).
+
 ## Next
 
-- Review every screen in all five modes and at Extra large text; polish spacing.
-- Product detail: header that fades in on scroll.
-- Component tests for key screens (React Native Testing Library).
-- App icon / splash artwork (currently Expo defaults).
+- More component tests (sign-in screen, filter sheet).
+- Consider enabling Reanimated shared element transitions (`ENABLE_SHARED_ELEMENT_TRANSITIONS`
+  static flag, experimental in Reanimated 4); today the detail screen paints the tapped card's photo
+  instantly and springs it in, which gives a similar feel without the experimental flag.
 
 ## Blockers / needs the owner
 

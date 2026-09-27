@@ -55,7 +55,7 @@ export function ListRow({
           {label}
         </Text>
         {value ? (
-          <Text variant="body" tone="muted" numberOfLines={1}>
+          <Text variant="body" tone="muted" numberOfLines={2}>
             {value}
           </Text>
         ) : null}

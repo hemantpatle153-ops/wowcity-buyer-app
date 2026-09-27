@@ -44,9 +44,14 @@ export async function restoreSession() {
       return;
     }
   } catch {
-    // Offline at launch: stay signed in optimistically; the next call will refresh.
+    // Offline at launch: stay signed in with the cached profile; the next call will refresh.
+    await useAuth.persist.rehydrate();
     const user = useAuth.getState().user;
-    useAuth.setState({ status: 'signedIn', user: user ?? { id: 'offline' } });
+    if (user) {
+      useAuth.setState({ status: 'signedIn' });
+      return;
+    }
+    useAuth.setState({ status: 'signedOut' });
     return;
   }
   useAuth.getState().setUser(null);

@@ -1,4 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 import type { User } from '@/api/types';
 
@@ -14,10 +16,20 @@ type AuthState = {
   setPendingSave: (p: PendingSave | null) => void;
 };
 
-export const useAuth = create<AuthState>()((set) => ({
-  status: 'unknown',
-  user: null,
-  pendingSave: null,
-  setUser: (user) => set({ user, status: user ? 'signedIn' : 'signedOut' }),
-  setPendingSave: (pendingSave) => set({ pendingSave }),
-}));
+export const useAuth = create<AuthState>()(
+  persist(
+    (set) => ({
+      status: 'unknown',
+      user: null,
+      pendingSave: null,
+      setUser: (user) => set({ user, status: user ? 'signedIn' : 'signedOut' }),
+      setPendingSave: (pendingSave) => set({ pendingSave }),
+    }),
+    {
+      // Only the profile is cached (to show it offline); tokens never live here.
+      name: 'wowcity.profile',
+      storage: createJSONStorage(() => AsyncStorage),
+      partialize: ({ user }) => ({ user }),
+    },
+  ),
+);

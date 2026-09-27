@@ -1,7 +1,13 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
-import { Platform, ScrollView, StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
+import Animated, {
+  FadeInDown,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ApiError } from '@/api/client';
@@ -87,9 +93,29 @@ export default function ProductScreen() {
 
   const back = () => (router.canGoBack() ? router.back() : router.replace('/home'));
 
+  // Header fades in (with the item name) once the photos scroll away.
+  const window = useWindowDimensions();
+  const galleryHeight = Math.round(Math.min(window.width, MAX_WIDTH) * 1.2);
+  const scrollY = useSharedValue(0);
+  const onScroll = useAnimatedScrollHandler((e) => {
+    scrollY.value = e.contentOffset.y;
+  });
+  const headerBg = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollY.value, [galleryHeight - 160, galleryHeight - 80], [0, 1], 'clamp'),
+  }));
+
   const topBar = (
-    <View style={[styles.topBar, { top: insets.top + 8 }]} pointerEvents="box-none">
+    <View style={[styles.topBar, { paddingTop: insets.top + 8 }]} pointerEvents="box-none">
+      <Animated.View
+        pointerEvents="none"
+        style={[StyleSheet.absoluteFill, { backgroundColor: colors.bg, borderBottomColor: colors.border }, styles.headerBg, headerBg]}
+      />
       <IconButton icon="chevron-back" label="Back" onPress={back} variant="photo" />
+      <Animated.View style={[styles.headerTitle, headerBg]} pointerEvents="none">
+        <Text variant="label" numberOfLines={1} align="center">
+          {product?.name ?? ''}
+        </Text>
+      </Animated.View>
       {product ? (
         <IconButton
           icon={Platform.OS === 'ios' ? 'share-outline' : 'share-social-outline'}
@@ -151,7 +177,12 @@ export default function ProductScreen() {
 
   return (
     <View style={[styles.fill, { backgroundColor: colors.bg }]}>
-      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 32 }} showsVerticalScrollIndicator={false}>
+      <Animated.ScrollView
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.center}>
           {/* 1) Photos */}
           <Gallery images={product.images} name={product.name} maxWidth={MAX_WIDTH} />
@@ -325,7 +356,7 @@ export default function ProductScreen() {
             ) : null}
           </Animated.View>
         </View>
-      </ScrollView>
+      </Animated.ScrollView>
       {topBar}
     </View>
   );
@@ -364,7 +395,19 @@ function AvailabilityRow({ title, items, withSwatch }: { title: string; items: A
 const styles = StyleSheet.create({
   fill: { flex: 1 },
   center: { width: '100%', maxWidth: MAX_WIDTH, alignSelf: 'center' },
-  topBar: { position: 'absolute', left: 12, right: 12, flexDirection: 'row', justifyContent: 'space-between' },
+  topBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 12,
+    paddingBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerBg: { borderBottomWidth: StyleSheet.hairlineWidth },
+  headerTitle: { flex: 1, paddingHorizontal: 8 },
   sheet: { marginTop: -20, paddingHorizontal: 16, paddingTop: 20, gap: 14 },
   soldOut: { flexDirection: 'row', gap: 10, padding: 12, borderWidth: 1, alignItems: 'flex-start' },
   description: { marginTop: -4 },
