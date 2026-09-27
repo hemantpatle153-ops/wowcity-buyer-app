@@ -3,7 +3,7 @@ import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { api, isMock, session } from '@/api';
@@ -14,6 +14,7 @@ import { Icon } from '@/components/Icon';
 import { ListGroup, ListRow } from '@/components/ListRow';
 import { ShopAvatar } from '@/components/ShopCard';
 import { Text } from '@/components/Text';
+import { TextField } from '@/components/TextField';
 import { PRIVACY_POLICY_URL } from '@/lib/config';
 import { formatPhoneForDisplay } from '@/lib/format';
 import { useAuth } from '@/state/auth';
@@ -25,7 +26,7 @@ import { accentLabels, modeLabels, textSizeLabels } from '@/theme/tokens';
 
 export default function Account() {
   const insets = useSafeAreaInsets();
-  const { colors, radius, textScale } = useTheme();
+  const { colors, radius } = useTheme();
   const qc = useQueryClient();
   const { status, user } = useAuth();
   const location = useSettings((s) => s.location);
@@ -110,17 +111,17 @@ export default function Account() {
               </View>
               {editing ? (
                 <View style={styles.editRow}>
-                  <TextInput
+                  <TextField
+                    size="md"
                     value={name}
                     onChangeText={setName}
                     placeholder="Your name"
-                    placeholderTextColor={colors.textMuted}
                     autoFocus
                     maxLength={60}
                     returnKeyType="done"
                     onSubmitEditing={saveName}
                     accessibilityLabel="Your name"
-                    style={[styles.input, { color: colors.text, backgroundColor: colors.surfaceSunken, borderRadius: radius.control, fontSize: Math.round(16 * textScale) }]}
+                    style={styles.flex}
                   />
                   <Button label="Save" size="md" onPress={saveName} loading={savingName} disabled={!name.trim()} />
                 </View>
@@ -242,7 +243,7 @@ const styles = StyleSheet.create({
   profileHead: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   guest: { width: 56, height: 56, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   editRow: { flexDirection: 'row', gap: 10, alignItems: 'center' },
-  input: { flex: 1, minHeight: 48, paddingHorizontal: 14 },
+  flex: { flex: 1 },
   version: { marginTop: 4 },
   sheetBody: { gap: 10, paddingTop: 8 },
   bullet: { flexDirection: 'row', alignItems: 'center', gap: 8 },

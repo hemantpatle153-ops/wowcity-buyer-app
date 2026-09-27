@@ -1,11 +1,12 @@
 import { router } from 'expo-router';
-import { ScrollView, StyleSheet, Switch, useColorScheme, View } from 'react-native';
+import { ScrollView, StyleSheet, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/Icon';
 import { IconButton } from '@/components/IconButton';
 import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/Text';
+import { ThemedSwitch } from '@/components/ThemedSwitch';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useSettings } from '@/state/settings';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -200,7 +201,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function ToggleRow({ label, hint, value, onChange }: { label: string; hint: string; value: boolean; onChange: (v: boolean) => void }) {
-  const { colors } = useTheme();
   return (
     <View style={styles.toggleRow}>
       <View style={styles.fill}>
@@ -211,13 +211,7 @@ function ToggleRow({ label, hint, value, onChange }: { label: string; hint: stri
           {hint}
         </Text>
       </View>
-      <Switch
-        value={value}
-        onValueChange={onChange}
-        accessibilityLabel={label}
-        trackColor={{ true: colors.accent, false: colors.borderStrong }}
-        thumbColor={colors.surfaceRaised}
-      />
+      <ThemedSwitch value={value} onValueChange={onChange} label={label} />
     </View>
   );
 }

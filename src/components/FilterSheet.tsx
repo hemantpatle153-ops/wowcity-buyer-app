@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, Switch, TextInput, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import type { Filters } from '@/api/types';
 import {
@@ -15,6 +15,8 @@ import { BottomSheet } from './BottomSheet';
 import { Button } from './Button';
 import { Chip } from './Chip';
 import { Text } from './Text';
+import { TextField } from './TextField';
+import { ThemedSwitch } from './ThemedSwitch';
 
 export function FilterSheet({
   visible,
@@ -29,7 +31,7 @@ export function FilterSheet({
   onApply: (f: SearchFilters) => void;
   options?: Filters;
 }) {
-  const { colors, radius, textScale } = useTheme();
+  const { colors, radius } = useTheme();
   const [draft, setDraft] = useState<SearchFilters>(value);
   const [minText, setMinText] = useState('');
   const [maxText, setMaxText] = useState('');
@@ -48,16 +50,6 @@ export function FilterSheet({
   const set = (patch: Partial<SearchFilters>) => setDraft((d) => ({ ...d, ...patch }));
   const toggle = <K extends 'category' | 'brand' | 'size' | 'colour'>(key: K, v: string) =>
     set({ [key]: draft[key] === v ? undefined : v } as Partial<SearchFilters>);
-
-  const inputStyle = [
-    styles.input,
-    {
-      color: colors.text,
-      backgroundColor: colors.surfaceSunken,
-      borderRadius: radius.control,
-      fontSize: Math.round(16 * textScale),
-    },
-  ];
 
   return (
     <BottomSheet
@@ -95,13 +87,7 @@ export function FilterSheet({
             Hide items sold out at the shop
           </Text>
         </View>
-        <Switch
-          value={draft.inStockOnly}
-          onValueChange={(v) => set({ inStockOnly: v })}
-          trackColor={{ true: colors.accent, false: colors.borderStrong }}
-          thumbColor={colors.surfaceRaised}
-          accessibilityLabel="In stock only"
-        />
+        <ThemedSwitch value={draft.inStockOnly} onValueChange={(v) => set({ inStockOnly: v })} label="In stock only" />
       </View>
 
       {options?.categories.length ? (
@@ -144,24 +130,24 @@ export function FilterSheet({
           );
         })}
         <View style={styles.priceInputs}>
-          <TextInput
+          <TextField
+            size="md"
             value={minText}
             onChangeText={setMinText}
             placeholder="Min ₹"
-            placeholderTextColor={colors.textMuted}
             keyboardType="number-pad"
             accessibilityLabel="Minimum price in rupees"
-            style={inputStyle}
+            style={styles.flex}
           />
           <Text tone="muted">to</Text>
-          <TextInput
+          <TextField
+            size="md"
             value={maxText}
             onChangeText={setMaxText}
             placeholder="Max ₹"
-            placeholderTextColor={colors.textMuted}
             keyboardType="number-pad"
             accessibilityLabel="Maximum price in rupees"
-            style={inputStyle}
+            style={styles.flex}
           />
         </View>
       </Section>
@@ -196,5 +182,4 @@ const styles = StyleSheet.create({
   sectionTitle: { marginBottom: 4 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 8 },
   priceInputs: { flexDirection: 'row', alignItems: 'center', gap: 10, width: '100%', marginTop: 8 },
-  input: { flex: 1, minHeight: 48, paddingHorizontal: 14 },
 });

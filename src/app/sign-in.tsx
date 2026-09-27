@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, type TextInput } from 'react-native';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -13,6 +13,7 @@ import { Icon } from '@/components/Icon';
 import { IconButton } from '@/components/IconButton';
 import { PressableScale } from '@/components/PressableScale';
 import { Text } from '@/components/Text';
+import { TextField } from '@/components/TextField';
 import { completePendingSave } from '@/features/favourites';
 import { useHaptics } from '@/hooks/useHaptics';
 import { looksLikePhone, normaliseIdentifier } from '@/lib/identifier';
@@ -24,7 +25,7 @@ const RESEND_SECONDS = 30;
 
 export default function SignIn() {
   const insets = useSafeAreaInsets();
-  const { colors, radius, textScale, reduceMotion } = useTheme();
+  const { colors, reduceMotion } = useTheme();
   const haptics = useHaptics();
   const qc = useQueryClient();
   const pending = useAuth((s) => s.pendingSave);
@@ -98,17 +99,6 @@ export default function SignIn() {
     }
   };
 
-  const inputStyle = [
-    styles.input,
-    {
-      color: colors.text,
-      backgroundColor: colors.surface,
-      borderColor: error ? colors.danger : colors.border,
-      borderRadius: radius.control + 4,
-      fontSize: Math.round(18 * textScale),
-    },
-  ];
-
   return (
     <KeyboardAvoidingView style={[styles.fill, { backgroundColor: colors.bg }]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView
@@ -138,14 +128,13 @@ export default function SignIn() {
                 ? 'We’ll save this item as soon as you’re in. No password needed.'
                 : 'Use your email or mobile number. We’ll send you a 6-digit code. No password needed.'}
             </Text>
-            <TextInput
+            <TextField
               value={identifier}
               onChangeText={(t) => {
                 setIdentifier(t);
                 if (error) setError(null);
               }}
               placeholder="Email or mobile number"
-              placeholderTextColor={colors.textMuted}
               autoCapitalize="none"
               autoCorrect={false}
               autoComplete="email"
@@ -154,8 +143,7 @@ export default function SignIn() {
               onSubmitEditing={requestCode}
               accessibilityLabel="Email or mobile number"
               autoFocus
-              maxFontSizeMultiplier={1.6}
-              style={inputStyle}
+              error={!!error}
               testID="identifier-input"
             />
             {error ? <ErrorText message={error} /> : null}
@@ -224,7 +212,6 @@ const styles = StyleSheet.create({
   bar: { flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: -8 },
   badge: { width: 64, height: 64, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginTop: 8, marginBottom: 8 },
   step: { gap: 14 },
-  input: { minHeight: 56, paddingHorizontal: 16, borderWidth: 1.5 },
   errorRow: { flexDirection: 'row', gap: 6, alignItems: 'center' },
   resend: { minHeight: 48, alignItems: 'center', justifyContent: 'center' },
 });

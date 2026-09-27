@@ -1,6 +1,6 @@
 import * as Location from 'expo-location';
 import { useState } from 'react';
-import { Linking, Platform, StyleSheet, TextInput, View } from 'react-native';
+import { Linking, Platform, StyleSheet, View } from 'react-native';
 
 import { RADIUS_OPTIONS, useSettings, type RadiusKm } from '@/state/settings';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -9,6 +9,7 @@ import { Button } from './Button';
 import { Chip } from './Chip';
 import { Icon } from './Icon';
 import { Text } from './Text';
+import { TextField } from './TextField';
 
 const CITIES = ['Bhopal', 'Indore', 'Jabalpur', 'Gwalior', 'Ujjain', 'Sagar'];
 
@@ -25,7 +26,7 @@ function labelFrom(place: Location.LocationGeocodedAddress | undefined): string 
  * here, when the buyer taps "Use my current location"; a city works instead.
  */
 export function LocationPicker() {
-  const { colors, radius, textScale } = useTheme();
+  const { colors, radius } = useTheme();
   const location = useSettings((s) => s.location);
   const radiusKm = useSettings((s) => s.radiusKm);
   const setLocation = useSettings((s) => s.setLocation);
@@ -114,23 +115,18 @@ export function LocationPicker() {
       </View>
 
       <View style={styles.block}>
-        <View style={[styles.cityField, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radius.control + 4 }]}>
-          <Icon name="business-outline" size={20} color="textMuted" />
-          <TextInput
+        <TextField
+            leading={<Icon name="business-outline" size={20} color="textMuted" />}
             value={city}
             onChangeText={setCity}
             onSubmitEditing={() => chooseCity(city)}
             onBlur={() => city.trim() && location?.kind !== 'gps' && chooseCity(city)}
             placeholder="Type your city"
-            placeholderTextColor={colors.textMuted}
             autoCapitalize="words"
             returnKeyType="done"
             accessibilityLabel="City"
-            maxFontSizeMultiplier={1.6}
-            style={[styles.cityInput, { color: colors.text, fontSize: Math.round(16 * textScale) }]}
             testID="city-input"
           />
-        </View>
         <View style={styles.chips}>
           {CITIES.map((c) => (
             <Chip key={c} label={c} selected={location?.kind === 'city' && location.city === c} onPress={() => chooseCity(c)} />
@@ -171,7 +167,5 @@ const styles = StyleSheet.create({
   note: { flexDirection: 'row', gap: 10, padding: 12 },
   divider: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   line: { flex: 1, height: StyleSheet.hairlineWidth },
-  cityField: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, minHeight: 54, borderWidth: 1 },
-  cityInput: { flex: 1, paddingVertical: 12 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 8 },
 });
