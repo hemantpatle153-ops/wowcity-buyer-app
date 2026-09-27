@@ -1,3 +1,5 @@
+import { normaliseIdentifier } from '@/lib/identifier';
+
 import type { FetchLike, HttpResponse } from '../client';
 import { parseQuery } from '../params';
 import type {
@@ -235,17 +237,7 @@ export function createMockState(): MockState {
   return { accounts: new Map(), access: new Map(), refresh: new Map(), seq: 0 };
 }
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-export function normaliseIdentifier(raw: string): { value: string; channel: 'email' | 'sms' } | null {
-  const v = raw.trim();
-  if (EMAIL.test(v)) return { value: v.toLowerCase(), channel: 'email' };
-  const digits = v.replace(/[\s-]/g, '');
-  if (/^[6-9]\d{9}$/.test(digits)) return { value: `+91${digits}`, channel: 'sms' };
-  if (/^\+91[6-9]\d{9}$/.test(digits)) return { value: digits, channel: 'sms' };
-  if (/^\+\d{8,15}$/.test(digits)) return { value: digits, channel: 'sms' };
-  return null;
-}
+export { normaliseIdentifier };
 
 function maskIdentifier(id: string, channel: 'email' | 'sms') {
   if (channel === 'email') {

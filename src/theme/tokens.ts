@@ -28,6 +28,9 @@ export type BaseColors = {
   onPhoto: string;
   /** Light chip placed over photos. */
   photoChip: string;
+  /** Filled heart on page surfaces, and on a photo chip. */
+  heart: string;
+  heartOnPhoto: string;
   scrim: string;
   shadow: string;
 };
@@ -58,6 +61,8 @@ export const baseColors: Record<ResolvedMode, BaseColors> = {
     info: '#1F5FA8',
     onPhoto: '#1C1A17',
     photoChip: '#FFFFFFE6',
+    heart: '#D0304F',
+    heartOnPhoto: '#D0304F',
     scrim: '#0000008C',
     shadow: '#1C1A17',
   },
@@ -76,6 +81,8 @@ export const baseColors: Record<ResolvedMode, BaseColors> = {
     info: '#7DB4FF',
     onPhoto: '#1C1A17',
     photoChip: '#FFFFFFE0',
+    heart: '#FF6F8E',
+    heartOnPhoto: '#C8284A',
     scrim: '#000000A6',
     shadow: '#000000',
   },
@@ -94,6 +101,8 @@ export const baseColors: Record<ResolvedMode, BaseColors> = {
     info: '#7DB4FF',
     onPhoto: '#1C1A17',
     photoChip: '#F2F2F2E0',
+    heart: '#FF6F8E',
+    heartOnPhoto: '#C8284A',
     scrim: '#000000BF',
     shadow: '#000000',
   },
@@ -112,6 +121,8 @@ export const baseColors: Record<ResolvedMode, BaseColors> = {
     info: '#3F5A86',
     onPhoto: '#3B3024',
     photoChip: '#FBF5E6E6',
+    heart: '#A8384C',
+    heartOnPhoto: '#A8384C',
     scrim: '#2A20158C',
     shadow: '#3B3024',
   },

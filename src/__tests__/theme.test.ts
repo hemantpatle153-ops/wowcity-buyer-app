@@ -44,6 +44,15 @@ describe('theme tokens', () => {
       expect(contrastRatio(a.accent, a.accentSoft)).toBeGreaterThanOrEqual(4.5);
     });
 
+    it('danger buttons use the page background for text', () => {
+      expect(contrastRatio(b.bg, b.danger)).toBeGreaterThanOrEqual(4.5);
+    });
+
+    it('hearts are visible (3:1 for icons)', () => {
+      for (const s of [b.bg, b.surface]) expect(contrastRatio(b.heart, s)).toBeGreaterThanOrEqual(3);
+      expect(contrastRatio(b.heartOnPhoto, solid(b.photoChip))).toBeGreaterThanOrEqual(3);
+    });
+
     it('photo chips keep their text readable', () => {
       expect(contrastRatio(b.onPhoto, solid(b.photoChip))).toBeGreaterThanOrEqual(4.5);
     });
