@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
+import { StyleSheet, TextInput, View, type StyleProp, type TextInputProps, type ViewStyle } from 'react-native';
 
 import { useTheme } from '@/theme/ThemeProvider';
 import { typeScale } from '@/theme/tokens';
@@ -7,7 +7,10 @@ import { typeScale } from '@/theme/tokens';
 import { Icon } from './Icon';
 import { IconButton } from './IconButton';
 
-export const SearchField = forwardRef<TextInput, TextInputProps & { onClear?: () => void }>(function SearchField(
+export const SearchField = forwardRef<
+  TextInput,
+  Omit<TextInputProps, 'style'> & { onClear?: () => void; style?: StyleProp<ViewStyle> }
+>(function SearchField(
   { value, onClear, style, ...rest },
   ref,
 ) {

@@ -41,6 +41,7 @@ export function Chip({
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityHint={accessibilityHint}
       disabled={!onPress || disabled}
+      hitSlop={4}
       style={[
         styles.chip,
         {

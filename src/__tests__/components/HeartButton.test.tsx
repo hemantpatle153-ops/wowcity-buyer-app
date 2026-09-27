@@ -33,7 +33,7 @@ beforeEach(() => {
 describe('HeartButton', () => {
   it('asks a signed-out buyer to sign in and remembers the save', async () => {
     await renderWithProviders(<HeartButton {...target} name="Crew tee" />);
-    fireEvent.press(screen.getByLabelText('Save Crew tee'));
+    await fireEvent.press(screen.getByLabelText('Save Crew tee'));
     await waitFor(() => expect(router.push).toHaveBeenCalledWith('/sign-in'));
     expect(useAuth.getState().pendingSave).toEqual(target);
     expect(useSaved.getState().keys).toEqual({});
@@ -42,7 +42,7 @@ describe('HeartButton', () => {
   it('saves straight away when signed in, and the label flips', async () => {
     await session.setSession(await api.verifyOtp('buyer@wowcity.in', '123456'));
     await renderWithProviders(<HeartButton {...target} name="Crew tee" />);
-    fireEvent.press(screen.getByLabelText('Save Crew tee'));
+    await fireEvent.press(screen.getByLabelText('Save Crew tee'));
     expect(await screen.findByLabelText('Remove Crew tee from saved')).toBeTruthy();
     await waitFor(() => expect(useSaved.getState().keys[favKey(target.storeId, target.productId)]).toBe(true));
     expect(router.push).not.toHaveBeenCalled();
