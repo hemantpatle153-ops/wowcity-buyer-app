@@ -7,16 +7,35 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "env": { "EXPO_PUBLIC_MOCK": "1" }
+      "env": {
+        "EXPO_PUBLIC_MOCK": "1"
+      }
+    },
+    "demo": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_MOCK": "1"
+      },
+      "android": {
+        "buildType": "apk"
+      }
     },
     "preview": {
       "distribution": "internal",
-      "android": { "buildType": "apk" },
-      "env": { "EXPO_PUBLIC_MOCK": "1" }
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_MOCK": "0",
+        "EXPO_PUBLIC_API_URL": "https://wow-city-api-848484285786.asia-southeast1.run.app/api/v1/public"
+      }
     },
     "production": {
       "autoIncrement": true,
-      "env": { "EXPO_PUBLIC_MOCK": "0" }
+      "env": {
+        "EXPO_PUBLIC_MOCK": "0"
+      },
+      "environment": "production"
     }
   },
   "submit": {

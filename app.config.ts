@@ -7,6 +7,11 @@ const LOCATION_REASON = 'WowCity uses your location to show shops and clothes ne
 const mapEnabled = process.env.EXPO_PUBLIC_ENABLE_MAP === '1';
 const androidMapsKey = process.env.GOOGLE_MAPS_ANDROID_API_KEY;
 
+// A store build must know its server and never fall back to demo data.
+if (process.env.EAS_BUILD_PROFILE === 'production' && !process.env.EXPO_PUBLIC_API_URL) {
+  throw new Error('Set EXPO_PUBLIC_API_URL for the production profile (EAS → Environment variables) before building.');
+}
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'WowCity',
