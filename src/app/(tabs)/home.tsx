@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
   topBar: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingLeft: 16, paddingRight: 6, marginBottom: 4 },
   launcher: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 52, paddingHorizontal: 14, borderRadius: 16, borderWidth: StyleSheet.hairlineWidth },
   section: { marginTop: 22 },
-  rail: { paddingHorizontal: 16, gap: 12 },
+  rail: { paddingHorizontal: 16, gap: 12, alignItems: 'flex-start' },
   railPad: { paddingHorizontal: 16 },
   row: { flexDirection: 'row', gap: 12 },
   bannerWrap: { marginTop: 16 },

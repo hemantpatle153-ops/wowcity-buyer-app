@@ -51,7 +51,7 @@ export const ProductCardView = memo(function ProductCardView({
   const distance = formatDistance(item.store.distanceKm);
 
   return (
-    <View style={[{ width }, styles.wrap, style]}>
+    <View style={[width ? { width, flexGrow: 0, flexShrink: 0 } : styles.wrap, style]}>
       <PressableScale
         onPress={() => openProduct(item)}
         haptic="tap"
@@ -158,7 +158,7 @@ export const ProductCardView = memo(function ProductCardView({
 export function ProductCardSkeleton({ width }: { width?: number }) {
   const { radius } = useTheme();
   return (
-    <View style={[{ width }, styles.wrap]} accessibilityLabel="Loading" accessible>
+    <View style={width ? { width, flexGrow: 0, flexShrink: 0 } : styles.wrap} accessibilityLabel="Loading" accessible>
       <Skeleton height="auto" radius={radius.card} style={styles.photo} />
       <View style={styles.meta}>
         <Skeleton width="40%" height={10} />
@@ -170,6 +170,8 @@ export function ProductCardSkeleton({ width }: { width?: number }) {
 }
 
 const styles = StyleSheet.create({
+  // Grid cells fill their column; cards in a sideways row get a fixed width and must not stretch
+  // (with flex: 1 Android stretched each row to about a screen high).
   wrap: { flex: 1 },
   photo: { aspectRatio: 4 / 5, overflow: 'hidden', width: '100%' },
   dim: { opacity: 0.55 },
