@@ -19,7 +19,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: 'WowCity',
   slug: 'wowcity',
   scheme: 'wowcity',
-  version: '1.0.1',
+  version: '1.0.2',
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'automatic',
@@ -34,7 +34,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   android: {
     package: 'com.luzzan.wowcity',
-    versionCode: 2,
+    versionCode: 3,
     adaptiveIcon: {
       backgroundColor: '#FF6A3D',
       foregroundImage: './assets/android-icon-foreground.png',
