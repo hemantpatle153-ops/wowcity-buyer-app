@@ -10,17 +10,20 @@ export function Icon({
   name,
   size = 22,
   color = 'text',
+  tint,
 }: {
   name: IconName;
   size?: number;
   color?: keyof ColorTokens;
+  /** A fixed colour (e.g. white on the brand gradient); overrides `color`. */
+  tint?: string;
 }) {
   const { colors, textScale } = useTheme();
   return (
     <Ionicons
       name={name}
       size={Math.round(size * Math.min(textScale, 1.15))}
-      color={colors[color]}
+      color={tint ?? colors[color]}
       accessibilityElementsHidden
       importantForAccessibility="no"
     />

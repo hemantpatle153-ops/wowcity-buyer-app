@@ -28,7 +28,7 @@ export function SectionHeader({ title, subtitle, actionLabel, onAction }: { titl
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', paddingHorizontal: 16, marginBottom: 8, gap: 12 },
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, marginBottom: 10, gap: 12 },
   titles: { flex: 1, gap: 2 },
-  action: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 4 },
+  action: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 4 },
 });

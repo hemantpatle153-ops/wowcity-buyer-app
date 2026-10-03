@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { SortOption } from '@/api/types';
 import { Chip } from '@/components/Chip';
 import { EmptyState } from '@/components/EmptyState';
-import { FilterSheet } from '@/components/FilterSheet';
+import { FilterSheet, type FilterGroup } from '@/components/FilterSheet';
 import { Icon } from '@/components/Icon';
 import { IconButton } from '@/components/IconButton';
 import { PressableScale } from '@/components/PressableScale';
@@ -17,22 +17,22 @@ import { Text } from '@/components/Text';
 import {
   activeFilterCount,
   emptyFilters,
+  filtersFromLink,
   priceLabel,
   SORT_LABELS,
   toSearchQuery,
   type SearchFilters,
+  type SearchLinkParams,
 } from '@/features/searchFilters';
-import { flattenPages, useFilters, useSearchFeed } from '@/hooks/queries';
+import { flattenPages, useFilters, useSearchFeed, useStores } from '@/hooks/queries';
 import { useRecentSearches } from '@/state/recentSearches';
 import { useSettings } from '@/state/settings';
 import { useTheme } from '@/theme/ThemeProvider';
 import { swatchFor } from '@/theme/swatches';
 
-const SORTS: SortOption[] = ['nearest', 'newest', 'price_low', 'price_high'];
-
 export default function Search() {
   const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams<{ q?: string; category?: string; inStockOnly?: string; sort?: string; focus?: string }>();
+  const params = useLocalSearchParams<SearchLinkParams & { focus?: string }>();
   const hasCoords = useSettings((s) => s.location?.kind === 'gps');
   const defaultSort: SortOption = hasCoords ? 'nearest' : 'newest';
 
@@ -40,23 +40,25 @@ export default function Search() {
   const [query, setQuery] = useState(params.q ?? '');
   const [filters, setFilters] = useState<SearchFilters>(emptyFilters);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filterGroup, setFilterGroup] = useState<FilterGroup | undefined>();
+  const openFilters = (group?: FilterGroup) => {
+    setFilterGroup(group);
+    setFiltersOpen(true);
+  };
   const [sortOpen, setSortOpen] = useState(false);
   const inputRef = useRef<TextInput>(null);
   const recent = useRecentSearches();
   const options = useFilters();
+  const shops = useStores();
 
-  // Links from Home ("See all", categories, tags) set the filters when they change.
-  const linkKey = [params.category, params.inStockOnly, params.sort, params.q].join('|');
-  const [appliedLink, setAppliedLink] = useState('|||');
+  // Links from Home (banners, category tiles, "See all") set the filters when they change.
+  const linkKey = JSON.stringify([params.q, params.category, params.brand, params.size, params.colour, params.inStockOnly, params.sort, params.minPrice, params.maxPrice, params.minDiscount]);
+  const [appliedLink, setAppliedLink] = useState<string | null>(null);
   if (linkKey !== appliedLink) {
     setAppliedLink(linkKey);
-    if (params.category || params.inStockOnly || params.sort || params.q) {
-      setFilters({
-        ...emptyFilters,
-        category: params.category || undefined,
-        inStockOnly: params.inStockOnly === '1',
-        sort: SORTS.includes(params.sort as SortOption) ? (params.sort as SortOption) : undefined,
-      });
+    const linked = filtersFromLink(params);
+    if (activeFilterCount(linked) > 0 || linked.sort || params.q) {
+      setFilters(linked);
       if (params.q) {
         setText(params.q);
         setQuery(params.q);
@@ -91,13 +93,18 @@ export default function Search() {
   };
 
   const activeChips: { key: string; label: string; swatch?: string; clear: () => void }[] = [];
-  if (filters.category) activeChips.push({ key: 'cat', label: filters.category, clear: () => setFilters((f) => ({ ...f, category: undefined })) });
-  if (filters.size) activeChips.push({ key: 'size', label: `Size ${filters.size}`, clear: () => setFilters((f) => ({ ...f, size: undefined })) });
-  if (filters.colour)
-    activeChips.push({ key: 'col', label: filters.colour, swatch: swatchFor(filters.colour), clear: () => setFilters((f) => ({ ...f, colour: undefined })) });
+  const without = (key: 'categories' | 'brands' | 'sizes' | 'colours' | 'shops', v: string) => () =>
+    setFilters((f) => ({ ...f, [key]: f[key].filter((x) => x !== v) }));
+  filters.categories.forEach((c) => activeChips.push({ key: `cat-${c}`, label: c, clear: without('categories', c) }));
+  filters.sizes.forEach((v) => activeChips.push({ key: `size-${v}`, label: `Size ${v}`, clear: without('sizes', v) }));
+  filters.colours.forEach((c) => activeChips.push({ key: `col-${c}`, label: c, swatch: swatchFor(c), clear: without('colours', c) }));
   const price = priceLabel(filters.minPrice, filters.maxPrice);
   if (price) activeChips.push({ key: 'price', label: price, clear: () => setFilters((f) => ({ ...f, minPrice: undefined, maxPrice: undefined })) });
-  if (filters.brand) activeChips.push({ key: 'brand', label: filters.brand, clear: () => setFilters((f) => ({ ...f, brand: undefined })) });
+  if (filters.minDiscount) activeChips.push({ key: 'disc', label: `${filters.minDiscount}%+ off`, clear: () => setFilters((f) => ({ ...f, minDiscount: undefined })) });
+  filters.brands.forEach((b) => activeChips.push({ key: `brand-${b}`, label: b, clear: without('brands', b) }));
+  filters.shops.forEach((id) =>
+    activeChips.push({ key: `shop-${id}`, label: shops.data?.find((x) => x.storeId === id)?.name ?? 'Shop', clear: without('shops', id) }),
+  );
 
   const header = (
     <View style={{ paddingTop: insets.top + 8 }}>
@@ -118,25 +125,41 @@ export default function Search() {
           testID="search-input"
         />
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipBar}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.noGrow} contentContainerStyle={styles.chipBar}>
         <Chip
           label={active ? `Filters · ${active}` : 'Filters'}
           icon="options-outline"
           selected={active > 0}
-          onPress={() => setFiltersOpen(true)}
-          accessibilityHint="Opens filters"
+          onPress={() => openFilters()}
+          accessibilityHint="Opens all filters"
         />
         <Chip label={SORT_LABELS[sort]} icon="swap-vertical" trailingIcon="chevron-down" onPress={() => setSortOpen(true)} accessibilityLabel={`Sort: ${SORT_LABELS[sort]}`} />
+        {(
+          [
+            ['size', 'Size', filters.sizes.length],
+            ['colour', 'Colour', filters.colours.length],
+            ['price', 'Price', price ? 1 : 0],
+            ['discount', 'Discount', filters.minDiscount ? 1 : 0],
+            ['brand', 'Brand', filters.brands.length],
+            ['category', 'Category', filters.categories.length],
+          ] as [FilterGroup, string, number][]
+        ).map(([group, label, n]) => (
+          <Chip key={group} label={n ? `${label} · ${n}` : label} trailingIcon="chevron-down" selected={n > 0} onPress={() => openFilters(group)} />
+        ))}
         <Chip
           label="In stock"
           icon={filters.inStockOnly ? 'checkmark-circle' : 'ellipse-outline'}
           selected={filters.inStockOnly}
           onPress={() => setFilters((f) => ({ ...f, inStockOnly: !f.inStockOnly }))}
         />
-        {activeChips.map((c) => (
-          <Chip key={c.key} label={c.label} swatch={c.swatch} selected trailingIcon="close" onPress={c.clear} accessibilityLabel={`Remove filter ${c.label}`} />
-        ))}
       </ScrollView>
+      {activeChips.length ? (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.noGrow} contentContainerStyle={styles.chipBar}>
+          {activeChips.map((c) => (
+            <Chip key={c.key} label={c.label} swatch={c.swatch} selected trailingIcon="close" onPress={c.clear} accessibilityLabel={`Remove filter ${c.label}`} />
+          ))}
+        </ScrollView>
+      ) : null}
       {browsing && total !== undefined ? (
         <Text variant="body" tone="muted" style={styles.count} accessibilityLiveRegion="polite">
           {total === 1 ? '1 item' : `${total} items`}
@@ -181,12 +204,22 @@ export default function Search() {
             onClear={recent.clear}
             categories={options.data?.categories ?? []}
             brands={options.data?.brands ?? []}
-            onCategory={(c) => setFilters((f) => ({ ...f, category: c }))}
-            onBrand={(b) => setFilters((f) => ({ ...f, brand: b }))}
+            onCategory={(c) => setFilters((f) => ({ ...f, categories: [c] }))}
+            onBrand={(b) => setFilters((f) => ({ ...f, brands: [b] }))}
           />
         </ScrollView>
       )}
-      <FilterSheet visible={filtersOpen} onClose={() => setFiltersOpen(false)} value={filters} onApply={setFilters} options={options.data} />
+      <FilterSheet
+        visible={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        value={filters}
+        onApply={setFilters}
+        options={options.data}
+        shops={shops.data ?? []}
+        query={query}
+        canSortByDistance={hasCoords}
+        initialGroup={filterGroup}
+      />
       <SortSheet
         visible={sortOpen}
         onClose={() => setSortOpen(false)}
@@ -278,6 +311,7 @@ function Suggestions({
 const styles = StyleSheet.create({
   fill: { flex: 1 },
   top: { paddingHorizontal: 16, gap: 12, marginBottom: 6 },
+  noGrow: { flexGrow: 0 },
   chipBar: { paddingHorizontal: 16, gap: 8, paddingVertical: 4 },
   count: { paddingHorizontal: 16, marginTop: 6, marginBottom: 10 },
   suggest: { paddingHorizontal: 16, gap: 24, marginTop: 16 },

@@ -78,9 +78,15 @@ export const ProductCardView = memo(function ProductCardView({
               <Icon name="shirt-outline" size={40} color="textMuted" />
             </View>
           ) : null}
-          {fresh ? (
+          {off && off >= 10 ? (
             <View style={[styles.badge, { backgroundColor: colors.accent }]}>
-              <Text variant="caption" tone="onAccent" weight="700">
+              <Text variant="caption" tone="onAccent" weight="800" numeric>
+                {off}% OFF
+              </Text>
+            </View>
+          ) : fresh ? (
+            <View style={[styles.badge, { backgroundColor: colors.photoChip }]}>
+              <Text variant="caption" tone="onPhoto" weight="700">
                 {fresh}
               </Text>
             </View>

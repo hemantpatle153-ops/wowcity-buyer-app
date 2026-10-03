@@ -8,6 +8,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
+import { useReanimatedKeyboardAnimation } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/theme/ThemeProvider';
@@ -72,7 +73,9 @@ export function BottomSheet({
       else translate.set(withSpring(0, SPRING));
     });
 
-  const sheetStyle = useAnimatedStyle(() => ({ transform: [{ translateY: translate.value }] }));
+  // Lift the sheet with the keyboard so text boxes inside stay visible (height is negative while it is open).
+  const keyboard = useReanimatedKeyboardAnimation();
+  const sheetStyle = useAnimatedStyle(() => ({ transform: [{ translateY: translate.value + keyboard.height.value }] }));
   const backdropStyle = useAnimatedStyle(() => ({ opacity: backdrop.value }));
 
   if (!mounted) return null;

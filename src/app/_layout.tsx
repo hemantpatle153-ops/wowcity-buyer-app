@@ -6,6 +6,7 @@ import * as SystemUI from 'expo-system-ui';
 import { useEffect, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { api, restoreSession } from '@/api';
@@ -35,13 +36,15 @@ const queryClient = new QueryClient({
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={styles.fill}>
-      <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider>
-            <App />
-          </ThemeProvider>
-        </QueryClientProvider>
-      </SafeAreaProvider>
+      <KeyboardProvider>
+        <SafeAreaProvider>
+          <QueryClientProvider client={queryClient}>
+            <ThemeProvider>
+              <App />
+            </ThemeProvider>
+          </QueryClientProvider>
+        </SafeAreaProvider>
+      </KeyboardProvider>
     </GestureHandlerRootView>
   );
 }

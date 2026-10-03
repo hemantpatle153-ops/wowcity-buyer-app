@@ -4,11 +4,11 @@
  */
 export type AppearanceMode = 'system' | 'light' | 'dark' | 'amoled' | 'eyeComfort';
 export type ResolvedMode = Exclude<AppearanceMode, 'system'>;
-export type AccentName = 'blue' | 'emerald' | 'violet' | 'saffron' | 'rose';
+export type AccentName = 'wow' | 'blue' | 'emerald' | 'violet' | 'saffron' | 'rose';
 export type TextSize = 'small' | 'default' | 'large' | 'xlarge';
 
 export const RESOLVED_MODES: ResolvedMode[] = ['light', 'dark', 'amoled', 'eyeComfort'];
-export const ACCENTS: AccentName[] = ['blue', 'emerald', 'violet', 'saffron', 'rose'];
+export const ACCENTS: AccentName[] = ['wow', 'blue', 'emerald', 'violet', 'saffron', 'rose'];
 
 export type BaseColors = {
   bg: string;
@@ -131,6 +131,7 @@ export const baseColors: Record<ResolvedMode, BaseColors> = {
 /** Accent shades tuned per mode; each passes 4.5:1 as text on bg/surface. */
 export const accentColors: Record<ResolvedMode, Record<AccentName, AccentColors>> = {
   light: {
+    wow: { accent: '#C8204F', accentText: '#FFFFFF', accentSoft: '#FDE8EF' },
     blue: { accent: '#1F5FD1', accentText: '#FFFFFF', accentSoft: '#E6EEFB' },
     emerald: { accent: '#0B7250', accentText: '#FFFFFF', accentSoft: '#E1F2EB' },
     violet: { accent: '#6A3BD1', accentText: '#FFFFFF', accentSoft: '#EEE8FB' },
@@ -138,6 +139,7 @@ export const accentColors: Record<ResolvedMode, Record<AccentName, AccentColors>
     rose: { accent: '#BB2350', accentText: '#FFFFFF', accentSoft: '#FBE6EC' },
   },
   dark: {
+    wow: { accent: '#FF7AA2', accentText: '#2A0A16', accentSoft: '#3A1E2A' },
     blue: { accent: '#82AEFF', accentText: '#0B1A33', accentSoft: '#1E2C45' },
     emerald: { accent: '#4FD19C', accentText: '#062519', accentSoft: '#173529' },
     violet: { accent: '#BBA1FF', accentText: '#1D1240', accentSoft: '#2C2545' },
@@ -145,6 +147,7 @@ export const accentColors: Record<ResolvedMode, Record<AccentName, AccentColors>
     rose: { accent: '#FF93AB', accentText: '#3A0A18', accentSoft: '#40242C' },
   },
   amoled: {
+    wow: { accent: '#FF7AA2', accentText: '#2A0A16', accentSoft: '#2A1019' },
     blue: { accent: '#82AEFF', accentText: '#0B1A33', accentSoft: '#101C33' },
     emerald: { accent: '#4FD19C', accentText: '#062519', accentSoft: '#0B241A' },
     violet: { accent: '#BBA1FF', accentText: '#1D1240', accentSoft: '#1C1633' },
@@ -152,6 +155,7 @@ export const accentColors: Record<ResolvedMode, Record<AccentName, AccentColors>
     rose: { accent: '#FF93AB', accentText: '#3A0A18', accentSoft: '#2E1219' },
   },
   eyeComfort: {
+    wow: { accent: '#A12C4C', accentText: '#FBF5E6', accentSoft: '#F2D9CF' },
     blue: { accent: '#34568F', accentText: '#FBF5E6', accentSoft: '#E5E0CF' },
     emerald: { accent: '#2D6448', accentText: '#FBF5E6', accentSoft: '#DFE3C8' },
     violet: { accent: '#644289', accentText: '#FBF5E6', accentSoft: '#E8DCCB' },
@@ -161,7 +165,8 @@ export const accentColors: Record<ResolvedMode, Record<AccentName, AccentColors>
 };
 
 export const accentLabels: Record<AccentName, string> = {
-  blue: 'WowCity Blue',
+  wow: 'WowCity',
+  blue: 'Blue',
   emerald: 'Emerald',
   violet: 'Violet',
   saffron: 'Saffron',

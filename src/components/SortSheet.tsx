@@ -9,7 +9,7 @@ import { Icon } from './Icon';
 import { PressableScale } from './PressableScale';
 import { Text } from './Text';
 
-const ORDER: SortOption[] = ['nearest', 'newest', 'price_low', 'price_high'];
+const ORDER: SortOption[] = ['nearest', 'newest', 'price_low', 'price_high', 'discount'];
 
 export function SortSheet({
   visible,

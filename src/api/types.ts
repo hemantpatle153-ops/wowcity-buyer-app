@@ -59,21 +59,26 @@ export type StoreSummary = Store & { listedProducts: number; inStockProducts: nu
 
 export type Page<T> = { total: number; page: number; pageSize: number; items: T[] };
 
-export type Filters = { categories: string[]; brands: string[]; sizes: string[]; colours: string[] };
+export type Filters = { categories: string[]; brands: string[]; sizes: string[]; colours: string[]; priceRange?: { min: number; max: number } };
 
-export type SortOption = 'nearest' | 'newest' | 'price_low' | 'price_high';
+export type SortOption = 'nearest' | 'newest' | 'price_low' | 'price_high' | 'discount';
 
 export type LocationQuery = { lat?: number; lng?: number; radiusKm?: number; city?: string };
 
 export type SearchQuery = LocationQuery & {
   storeId?: string;
+  /** Several shops, comma separated. */
+  storeIds?: string;
   q?: string;
+  /** category, brand, size and colour take one value or a comma list (any of them matches). */
   category?: string;
   brand?: string;
   size?: string;
   colour?: string;
   minPrice?: number;
   maxPrice?: number;
+  /** Minimum % off MRP. */
+  minDiscount?: number;
   inStockOnly?: boolean;
   sort?: SortOption;
   page?: number;

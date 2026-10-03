@@ -154,11 +154,21 @@ function eq(a: string | undefined, b: string | undefined) {
   return a !== undefined && b !== undefined && a.toLowerCase() === b.toLowerCase();
 }
 
+/** One value or a comma list, lower-cased. */
+function anyOf(v: string | undefined): string[] {
+  return (v ?? '').split(',').map((x) => x.trim().toLowerCase()).filter(Boolean);
+}
+
+function discountOf(c: ProductCard): number {
+  return c.mrp && c.price !== undefined && c.mrp > c.price ? Math.round(((c.mrp - c.price) * 100) / c.mrp) : 0;
+}
+
 function search(q: Record<string, string>): Page<ProductCard> {
   const area = readArea(q);
   const allowed = new Set(storesIn(area).map((s) => s.storeId));
   let cards = fixtureProducts
     .filter((p) => (q.storeId ? p.storeId === q.storeId : allowed.has(p.storeId)))
+    .filter((p) => !q.storeIds || anyOf(q.storeIds).includes(p.storeId.toLowerCase()))
     .map((p) => ({ p, card: toCard(p, area.at) }));
 
   const terms = (q.q ?? '').toLowerCase().split(/\s+/).filter(Boolean);
@@ -171,10 +181,12 @@ function search(q: Record<string, string>): Page<ProductCard> {
       return terms.every((t) => hay.includes(t));
     });
   }
-  if (q.category) cards = cards.filter(({ card }) => eq(card.category, q.category));
-  if (q.brand) cards = cards.filter(({ card }) => eq(card.brand, q.brand));
-  if (q.size) cards = cards.filter(({ card }) => card.sizes?.some((s) => eq(s, q.size)));
-  if (q.colour) cards = cards.filter(({ card }) => card.colours?.some((c) => eq(c, q.colour)));
+  const cats = anyOf(q.category), brands = anyOf(q.brand), sizes = anyOf(q.size), colours = anyOf(q.colour);
+  if (cats.length) cards = cards.filter(({ card }) => cats.includes((card.category ?? '').toLowerCase()));
+  if (brands.length) cards = cards.filter(({ card }) => brands.includes((card.brand ?? '').toLowerCase()));
+  if (sizes.length) cards = cards.filter(({ card }) => card.sizes?.some((s) => sizes.includes(s.toLowerCase())));
+  if (colours.length) cards = cards.filter(({ card }) => card.colours?.some((c) => colours.includes(c.toLowerCase())));
+  if (q.minDiscount) cards = cards.filter(({ card }) => discountOf(card) >= Number(q.minDiscount));
   if (q.minPrice) cards = cards.filter(({ card }) => card.price !== undefined && card.price >= Number(q.minPrice));
   if (q.maxPrice) cards = cards.filter(({ card }) => card.price !== undefined && card.price <= Number(q.maxPrice));
   if (q.inStockOnly === 'true') cards = cards.filter(({ card }) => card.inStock);
@@ -190,6 +202,7 @@ function search(q: Record<string, string>): Page<ProductCard> {
   if (sort === 'nearest') list.sort((a, b) => (a.store.distanceKm ?? 0) - (b.store.distanceKm ?? 0) || newest(a, b));
   else if (sort === 'price_low') list.sort(byPrice(1));
   else if (sort === 'price_high') list.sort(byPrice(-1));
+  else if (sort === 'discount') list.sort((a, b) => discountOf(b) - discountOf(a) || newest(a, b));
   else list.sort(newest);
 
   const page = Math.max(1, Math.floor(Number(q.page ?? 1)) || 1);
@@ -214,11 +227,13 @@ function filtersFor(area: Area): Filters {
   const ids = new Set(storesIn(area).map((s) => s.storeId));
   const cards = fixtureProducts.filter((p) => ids.has(p.storeId)).map((p) => toCard(p, area.at));
   const sorted = (xs: string[]) => [...new Set(xs)].sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+  const prices = cards.flatMap((c) => (c.inStock && c.price !== undefined ? [c.price] : []));
   return {
     categories: sorted(cards.flatMap((c) => (c.category ? [c.category] : []))),
     brands: sorted(cards.flatMap((c) => (c.brand ? [c.brand] : []))),
     sizes: sorted(cards.flatMap((c) => c.sizes ?? [])),
     colours: sorted(cards.flatMap((c) => c.colours ?? [])),
+    ...(prices.length ? { priceRange: { min: Math.min(...prices), max: Math.max(...prices) } } : {}),
   };
 }
 

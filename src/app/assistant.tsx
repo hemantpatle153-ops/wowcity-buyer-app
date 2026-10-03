@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useRef, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { api } from '@/api';
@@ -8,6 +9,7 @@ import { Icon } from '@/components/Icon';
 import { IconButton } from '@/components/IconButton';
 import { PressableScale } from '@/components/PressableScale';
 import { ProductCardView } from '@/components/ProductCard';
+import { ReplyText } from '@/components/ReplyText';
 import { Text } from '@/components/Text';
 import { ASSISTANT_NAME, friendlyError, historyFor, SUGGESTIONS, type ChatItem } from '@/features/assistant/chat';
 import { useVoiceInput } from '@/features/assistant/useVoiceInput';
@@ -62,7 +64,7 @@ export default function AssistantScreen() {
         </View>
         {items.length ? <IconButton icon="refresh" label="New chat" variant="plain" onPress={() => setItems([])} /> : null}
       </View>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <ScrollView
           ref={scroll}
           style={{ flex: 1 }}
@@ -179,9 +181,13 @@ function Bubble({ item }: { item: ChatItem }) {
             : { alignSelf: 'flex-start', backgroundColor: item.failed ? colors.surfaceSunken : colors.surface, borderColor: colors.border, borderWidth: 1, borderBottomLeftRadius: 6 },
         ]}
       >
-        <Text variant="bodyLarge" tone={mine ? 'onAccent' : item.failed ? 'danger' : 'default'} selectable>
-          {item.content}
-        </Text>
+        {mine ? (
+          <Text variant="bodyLarge" tone="onAccent" selectable>
+            {item.content}
+          </Text>
+        ) : (
+          <ReplyText text={item.content} tone={item.failed ? 'danger' : 'default'} />
+        )}
       </View>
       {item.products?.length ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingRight: 16 }}>

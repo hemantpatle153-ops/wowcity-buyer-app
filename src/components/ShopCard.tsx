@@ -1,8 +1,10 @@
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 import type { StoreSummary } from '@/api/types';
 import { formatDistance, initials } from '@/lib/format';
+import { PHOTO_BLURHASH, PHOTO_TRANSITION } from '@/lib/images';
 import { useTheme } from '@/theme/ThemeProvider';
 
 import { Icon } from './Icon';
@@ -39,8 +41,8 @@ export function ShopAvatar({ name, size = 52 }: { name: string; size?: number })
   );
 }
 
-/** Compact card for the home carousel. */
-export function ShopTile({ shop }: { shop: StoreSummary }) {
+/** Card for the home carousel: a product photo from the shop as cover, then name, distance and stock. */
+export function ShopTile({ shop, cover }: { shop: StoreSummary; cover?: string | null }) {
   const { colors, radius } = useTheme();
   const d = formatDistance(shop.distanceKm);
   return (
@@ -51,23 +53,30 @@ export function ShopTile({ shop }: { shop: StoreSummary }) {
       accessibilityHint="Opens the shop"
       style={[styles.tile, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radius.card }]}
     >
-      <View style={styles.tileTop}>
-        <ShopAvatar name={shop.name} size={44} />
+      <View style={[styles.cover, { backgroundColor: colors.accentSoft }]}>
+        {cover ? (
+          <Image source={{ uri: cover }} placeholder={{ blurhash: PHOTO_BLURHASH }} transition={PHOTO_TRANSITION} contentFit="cover" style={StyleSheet.absoluteFill} accessible={false} />
+        ) : null}
         {d ? (
-          <View style={[styles.pill, { backgroundColor: colors.accentSoft }]}>
-            <Icon name="navigate" size={11} color="accent" />
-            <Text variant="caption" tone="accent" weight="700" numeric>
+          <View style={[styles.coverPill, { backgroundColor: colors.photoChip }]}>
+            <Icon name="navigate" size={11} color="onPhoto" />
+            <Text variant="caption" tone="onPhoto" weight="700" numeric>
               {d}
             </Text>
           </View>
         ) : null}
       </View>
-      <Text variant="bodyStrong" numberOfLines={1}>
-        {shop.name}
-      </Text>
-      <Text variant="caption" tone="muted" numberOfLines={1}>
-        {shop.inStockProducts} in stock · {shop.city ?? ''}
-      </Text>
+      <View style={styles.tileBody}>
+        <View style={[styles.avatarRing, { borderColor: colors.surface }]}>
+          <ShopAvatar name={shop.name} size={40} />
+        </View>
+        <Text variant="bodyStrong" numberOfLines={1}>
+          {shop.name}
+        </Text>
+        <Text variant="caption" tone="muted" numberOfLines={1}>
+          {shop.inStockProducts} items in stock{shop.city ? ` · ${shop.city}` : ''}
+        </Text>
+      </View>
     </PressableScale>
   );
 }
@@ -76,9 +85,11 @@ export function ShopTileSkeleton() {
   const { colors, radius } = useTheme();
   return (
     <View style={[styles.tile, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radius.card }]}>
-      <Skeleton width={44} height={44} radius={14} />
-      <Skeleton width="80%" height={14} />
-      <Skeleton width="55%" height={10} />
+      <Skeleton width="100%" height={96} radius={0} />
+      <View style={[styles.tileBody, { gap: 8, paddingTop: 12 }]}>
+        <Skeleton width="80%" height={14} />
+        <Skeleton width="55%" height={10} />
+      </View>
     </View>
   );
 }
@@ -142,8 +153,11 @@ export function ShopRowSkeleton() {
 }
 
 const styles = StyleSheet.create({
-  tile: { width: 168, padding: 14, gap: 6, borderWidth: StyleSheet.hairlineWidth },
-  tileTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 },
+  tile: { width: 200, borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden' },
+  cover: { height: 96, width: '100%' },
+  coverPill: { position: 'absolute', top: 8, right: 8, flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 },
+  tileBody: { paddingHorizontal: 12, paddingBottom: 12, gap: 2 },
+  avatarRing: { marginTop: -22, marginBottom: 4, alignSelf: 'flex-start', borderWidth: 3, borderRadius: 16 },
   pill: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 14, borderWidth: StyleSheet.hairlineWidth },
   rowBody: { flex: 1, gap: 3 },

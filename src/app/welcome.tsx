@@ -5,6 +5,7 @@ import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
+import { BrandMark } from '@/components/BrandMark';
 import { Icon } from '@/components/Icon';
 import { LocationPicker } from '@/components/LocationPicker';
 import { PressableScale } from '@/components/PressableScale';
@@ -35,9 +36,7 @@ export default function Welcome() {
       />
       <ScrollView contentContainerStyle={[styles.content, { paddingTop: insets.top + 24 }]} keyboardShouldPersistTaps="handled">
         <Animated.View entering={reduceMotion ? undefined : FadeInUp.springify().damping(18)} style={styles.hero}>
-          <View style={[styles.logo, { backgroundColor: colors.accent }]}>
-            <Icon name="shirt" size={34} color="accentText" />
-          </View>
+          <BrandMark size={72} />
           <Text variant="display" accessibilityRole="header">
             WowCity
           </Text>
@@ -85,7 +84,6 @@ const styles = StyleSheet.create({
   glow: { position: 'absolute', left: 0, right: 0, top: 0 },
   content: { paddingHorizontal: 20, paddingBottom: 24, gap: 28, maxWidth: 560, width: '100%', alignSelf: 'center' },
   hero: { gap: 10 },
-  logo: { width: 64, height: 64, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginBottom: 6 },
   points: { gap: 8, marginTop: 6 },
   point: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   card: { gap: 14 },

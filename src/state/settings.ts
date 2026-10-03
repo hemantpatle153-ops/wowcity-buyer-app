@@ -22,7 +22,7 @@ export type Appearance = {
 
 export const defaultAppearance: Appearance = {
   mode: 'system',
-  accent: 'blue',
+  accent: 'wow',
   textSize: 'default',
   reduceMotion: 'system',
   haptics: true,
@@ -57,7 +57,13 @@ export const useSettings = create<SettingsState>()(
     }),
     {
       name: 'wowcity.settings',
-      version: 1,
+      // v2: the default accent moved from blue to the WowCity brand colour.
+      version: 2,
+      migrate: (persisted, version) => {
+        const p = (persisted ?? {}) as Partial<SettingsState>;
+        if (version < 2 && p.appearance?.accent === 'blue') return { ...p, appearance: { ...p.appearance, accent: 'wow' } };
+        return p;
+      },
       storage: createJSONStorage(() => AsyncStorage),
       partialize: ({ onboarded, location, radiusKm, appearance }) => ({ onboarded, location, radiusKm, appearance }),
       merge: (persisted, current) => {

@@ -36,7 +36,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: 'com.luzzan.wowcity',
     versionCode: 2,
     adaptiveIcon: {
-      backgroundColor: '#164CB8',
+      backgroundColor: '#FF6A3D',
       foregroundImage: './assets/android-icon-foreground.png',
       backgroundImage: './assets/android-icon-background.png',
       monochromeImage: './assets/android-icon-monochrome.png',

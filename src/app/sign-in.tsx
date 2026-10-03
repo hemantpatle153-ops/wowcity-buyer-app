@@ -1,7 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, type TextInput } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View, type TextInput } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -100,7 +101,7 @@ export default function SignIn() {
   };
 
   return (
-    <KeyboardAvoidingView style={[styles.fill, { backgroundColor: colors.bg }]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={[styles.fill, { backgroundColor: colors.bg }]} behavior="padding">
       <ScrollView
         contentContainerStyle={[styles.content, { paddingTop: (Platform.OS === 'ios' ? 12 : insets.top + 8), paddingBottom: insets.bottom + 24 }]}
         keyboardShouldPersistTaps="handled"
