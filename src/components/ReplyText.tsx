@@ -1,12 +1,12 @@
 import { StyleSheet, View } from 'react-native';
 
-import { parseReply } from '@/features/assistant/chat';
+import { visibleBlocks } from '@/features/assistant/chat';
 
 import { Text } from './Text';
 
 /** An assistant reply as paragraphs and bullet rows, with bold where the reply asks for it. */
 export function ReplyText({ text, tone = 'default' }: { text: string; tone?: 'default' | 'danger' }) {
-  const blocks = parseReply(text);
+  const blocks = visibleBlocks(text);
   return (
     <View style={styles.wrap}>
       {blocks.map((block, i) =>
@@ -41,5 +41,5 @@ const styles = StyleSheet.create({
   wrap: { gap: 6 },
   bulletRow: { flexDirection: 'row', gap: 8 },
   dot: { width: 10 },
-  flex: { flex: 1 },
+  flex: { flexShrink: 1 },
 });

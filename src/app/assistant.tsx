@@ -178,7 +178,7 @@ function Bubble({ item }: { item: ChatItem }) {
           styles.bubble,
           mine
             ? { alignSelf: 'flex-end', backgroundColor: colors.accent, borderBottomRightRadius: 6 }
-            : { alignSelf: 'flex-start', backgroundColor: item.failed ? colors.surfaceSunken : colors.surface, borderColor: colors.border, borderWidth: 1, borderBottomLeftRadius: 6 },
+            : { alignSelf: 'stretch', maxWidth: undefined, marginRight: '8%', backgroundColor: item.failed ? colors.surfaceSunken : colors.surface, borderColor: colors.border, borderWidth: 1, borderBottomLeftRadius: 6 },
         ]}
       >
         {mine ? (
