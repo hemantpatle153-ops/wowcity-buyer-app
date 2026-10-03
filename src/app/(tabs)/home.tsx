@@ -46,6 +46,7 @@ export default function Home() {
           Clothes in stock at shops near you. Save what you love, then walk in.
         </Text>
         <SearchLauncher />
+        <AssistantLauncher />
       </View>
 
       {filters.data && filters.data.categories.length > 0 ? (
@@ -152,6 +153,31 @@ export default function Home() {
   );
 }
 
+function AssistantLauncher() {
+  const { colors, radius } = useTheme();
+  return (
+    <PressableScale
+      onPress={() => router.push('/assistant')}
+      accessibilityRole="button"
+      accessibilityLabel="Ask Sarah, the AI shopping assistant"
+      accessibilityHint="Describe what you want and Sarah finds it in shops near you"
+      scaleTo={0.98}
+      style={[styles.ask, { backgroundColor: colors.accentSoft, borderRadius: radius.control + 6 }]}
+    >
+      <Icon name="sparkles" size={20} color="accent" />
+      <View style={{ flex: 1 }}>
+        <Text variant="label" tone="accent">
+          Ask Sarah
+        </Text>
+        <Text variant="caption" tone="muted" numberOfLines={1}>
+          {"Tell her what you want, she'll find it nearby"}
+        </Text>
+      </View>
+      <Icon name="chevron-forward" size={18} color="accent" />
+    </PressableScale>
+  );
+}
+
 function SearchLauncher() {
   const { colors, radius } = useTheme();
   return (
@@ -177,5 +203,6 @@ const styles = StyleSheet.create({
   section: { marginTop: 14, marginBottom: 6 },
   rail: { paddingHorizontal: 16, gap: 12 },
   row: { flexDirection: 'row', gap: 12 },
+  ask: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 56, paddingHorizontal: 14, marginTop: 8 },
   launcher: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 52, paddingHorizontal: 14, marginTop: 10 },
 });

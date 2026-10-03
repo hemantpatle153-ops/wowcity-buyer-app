@@ -256,6 +256,26 @@ function issue(state: MockState, userId: string): Session {
   return { accessToken, refreshToken, expiresIn: 3600, user: { ...state.accounts.get(userId)!.user } };
 }
 
+// Demo stand-in for the shopping assistant: searches the shopper's area for words from the question.
+const STOP_WORDS = new Set(['the', 'and', 'for', 'near', 'with', 'show', 'want', 'need', 'any', 'have', 'mujhe', 'chahiye', 'kahan', 'milega', 'hai', 'kya', 'under', 'below', 'me', 'ke', 'ki', 'ka']);
+
+function assistant(body: any) {
+  const messages: { role: string; content: string }[] = Array.isArray(body?.messages) ? body.messages : [];
+  const question = [...messages].reverse().find((m) => m.role === 'user')?.content ?? '';
+  if (!question.trim()) throw new HttpError(422, 'invalid_messages', "Type what you're looking for.");
+  if (body?.lat === undefined && !body?.city) throw new HttpError(422, 'location_required', 'Choose your location or city first.');
+  const area: Record<string, string> = { inStockOnly: 'true' };
+  for (const key of ['lat', 'lng', 'radiusKm', 'city']) if (body[key] !== undefined) area[key] = String(body[key]);
+  const words = question.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((w) => w.length > 2 && !STOP_WORDS.has(w));
+  const found = new Map<string, ProductCard>();
+  for (const word of words) for (const card of search({ ...area, q: word }).items) found.set(card.productId, card);
+  const products = [...found.values()].slice(0, 6);
+  const answer = products.length
+    ? `I found ${products.length} in stock near you. The closest is ${products[0].name ?? 'an item'} at ${products[0].store.name}.\n\nThis is demo mode: the real assistant understands sizes, colours and budgets too.`
+    : "I couldn't find that near you. Try other words, or widen your distance.";
+  return { answer, toolsUsed: [words.length ? `Searched "${words.slice(0, 3).join(' ')}" near you` : 'Searched near you'], products };
+}
+
 // ---------- router ----------
 
 class HttpError extends Error {
@@ -316,6 +336,7 @@ export function createMockFetch(opts: MockOptions = {}): FetchLike & { state: Mo
     const area = readArea(q);
 
     if (method === 'GET' && path === '/search') return search(q);
+    if (method === 'POST' && path === '/assistant') return assistant(body);
     if (method === 'GET' && seg[0] === 'products' && seg.length === 3) {
       const p = fixtureProducts.find((x) => x.storeId === seg[1] && x.productId === seg[2]);
       if (!p) throw new HttpError(404, 'not_found', 'This item is no longer listed.');

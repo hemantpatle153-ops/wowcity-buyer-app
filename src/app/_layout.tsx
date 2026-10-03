@@ -102,6 +102,7 @@ function App() {
         <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
         <Stack.Screen name="appearance" />
         <Stack.Screen name="location" />
+        <Stack.Screen name="assistant" />
       </Stack>
       <OfflineBanner />
       <ToastHost />

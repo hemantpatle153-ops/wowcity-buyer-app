@@ -84,3 +84,7 @@ export type User = { id: string; email?: string; phone?: string; name?: string }
 export type OtpRequestResult = { sentTo: string; channel: 'email' | 'sms' };
 
 export type Session = { accessToken: string; refreshToken: string; expiresIn: number; user: User };
+
+export type AssistantTurn = { role: 'user' | 'assistant'; content: string };
+export type AssistantAskBody = LocationQuery & { messages: AssistantTurn[] };
+export type AssistantAnswer = { answer: string; toolsUsed: string[]; products: ProductCard[] };

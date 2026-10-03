@@ -1,5 +1,7 @@
 import type { ApiClient } from './client';
 import type {
+  AssistantAnswer,
+  AssistantAskBody,
   Filters,
   LocationQuery,
   OtpRequestResult,
@@ -38,6 +40,9 @@ export function createEndpoints(client: ApiClient) {
       client.request<Page<ProductCard>>('GET', '/favourites', { auth: true, query: q }),
     setFavourite: (storeId: string, productId: string, saved: boolean) =>
       client.request<{ saved: boolean }>('PUT', '/favourites', { auth: true, body: { storeId, productId, saved } }),
+    /** Signed-in shoppers send their token so the daily allowance follows the account. */
+    askAssistant: (body: AssistantAskBody, signedIn: boolean) =>
+      client.request<AssistantAnswer>('POST', '/assistant', { body, auth: signedIn }),
     deleteAccount: () => client.request<{ deleted: true }>('DELETE', '/account', { auth: true }),
   };
 }
