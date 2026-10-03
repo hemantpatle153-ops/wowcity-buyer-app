@@ -25,3 +25,21 @@ export function friendlyError(error: unknown): string {
   }
   return 'Something went wrong. Try again.';
 }
+
+export type VoiceLang = 'en-IN' | 'hi-IN';
+
+/** What was typed before the mic was tapped, followed by what was heard. */
+export function joinSpeech(before: string, heard: string) {
+  const said = heard.trim();
+  if (!said) return before;
+  return before.trim() ? `${before.trimEnd()} ${said}` : said;
+}
+
+/** Speech errors in plain words; null for the ones that need no message (cancelled, silence). */
+export function voiceErrorMessage(code: string): string | null {
+  if (code === 'aborted' || code === 'no-speech' || code === 'speech-timeout') return null;
+  if (code === 'not-allowed') return 'Allow the microphone for WowCity to talk to Sarah.';
+  if (code === 'network') return 'Voice typing needs the internet on this phone.';
+  if (code === 'service-not-allowed' || code === 'language-not-supported') return "Voice typing isn't available on this phone. You can type instead.";
+  return "Couldn't hear that. Tap the mic and try again.";
+}

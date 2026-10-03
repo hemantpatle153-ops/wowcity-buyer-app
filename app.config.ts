@@ -1,5 +1,7 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
+const MIC_REASON = 'WowCity uses the microphone only when you tap the mic to tell Sarah what you are looking for.';
+const SPEECH_REASON = 'WowCity turns what you say to Sarah into text.';
 const LOCATION_REASON = 'WowCity uses your location to show shops and clothes near you.';
 
 // Optional map of nearby shops. Android needs a Google Maps API key
@@ -87,6 +89,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         isAndroidMotionActivityEnabled: false,
       },
     ],
+    ['expo-speech-recognition', { microphonePermission: MIC_REASON, speechRecognitionPermission: SPEECH_REASON }],
   ],
   experiments: {
     typedRoutes: true,

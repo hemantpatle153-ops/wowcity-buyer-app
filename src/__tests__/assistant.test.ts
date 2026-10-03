@@ -2,7 +2,7 @@ import { ApiError, createApiClient } from '@/api/client';
 import { createEndpoints } from '@/api/endpoints';
 import { BHOPAL } from '@/api/mock/fixtures';
 import { createMockFetch } from '@/api/mock/server';
-import { friendlyError, historyFor, type ChatItem } from '@/features/assistant/chat';
+import { friendlyError, historyFor, joinSpeech, voiceErrorMessage, type ChatItem } from '@/features/assistant/chat';
 
 const api = createEndpoints(
   createApiClient({ baseUrl: 'https://m/api/v1/public', fetch: createMockFetch({ latencyMs: [0, 0] }) }),
@@ -23,6 +23,13 @@ describe('Sarah, the shopping assistant', () => {
     expect(friendlyError(new ApiError(0, 'network', 'x'))).toMatch(/offline/);
     expect(friendlyError(new ApiError(422, 'location_required', 'x'))).toMatch(/location/);
     expect(friendlyError(new ApiError(429, 'daily_limit', 'Come back tomorrow.'))).toBe('Come back tomorrow.');
+  });
+
+  it('adds what was heard after what was already typed', () => {
+    expect(joinSpeech('', ' red kurta ')).toBe('red kurta');
+    expect(joinSpeech('red kurta ', 'size L')).toBe('red kurta size L');
+    expect(voiceErrorMessage('no-speech')).toBeNull();
+    expect(voiceErrorMessage('not-allowed')).toMatch(/microphone/);
   });
 
   it('finds in-stock items only inside the chosen distance in demo mode', async () => {

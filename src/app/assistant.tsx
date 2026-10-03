@@ -10,6 +10,7 @@ import { PressableScale } from '@/components/PressableScale';
 import { ProductCardView } from '@/components/ProductCard';
 import { Text } from '@/components/Text';
 import { ASSISTANT_NAME, friendlyError, historyFor, SUGGESTIONS, type ChatItem } from '@/features/assistant/chat';
+import { useVoiceInput } from '@/features/assistant/useVoiceInput';
 import { useAuth } from '@/state/auth';
 import { locationLabel, locationParams, useSettings } from '@/state/settings';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -25,10 +26,12 @@ export default function AssistantScreen() {
   const [items, setItems] = useState<ChatItem[]>([]);
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
+  const voice = useVoiceInput(setDraft);
 
   async function ask(text: string) {
     const question = text.trim();
     if (!question || busy) return;
+    if (voice.listening) voice.stop();
     const next: ChatItem[] = [...items, { id: Date.now(), role: 'user', content: question }];
     setItems(next);
     setDraft('');
@@ -122,10 +125,38 @@ export default function AssistantScreen() {
               accessibilityLabel={`Message ${ASSISTANT_NAME}`}
               style={[styles.input, { borderRadius: radius.control + 6, borderColor: colors.borderStrong, backgroundColor: colors.bg, color: colors.text }]}
             />
+            {voice.available ? (
+              <IconButton
+                icon={voice.listening ? 'stop' : 'mic-outline'}
+                label={voice.listening ? 'Stop listening' : 'Speak what you want'}
+                color={voice.listening ? 'danger' : 'accent'}
+                onPress={() => (voice.listening ? voice.stop() : voice.start(draft))}
+                style={{ backgroundColor: colors.surfaceSunken }}
+              />
+            ) : null}
             <View style={{ opacity: canSend ? 1 : 0.45 }}>
               <IconButton icon="send" label="Send" variant="accent" onPress={canSend ? () => ask(draft) : undefined} />
             </View>
           </View>
+          {voice.available ? (
+            <View style={styles.voiceRow}>
+              <Text variant="caption" tone={voice.error ? 'danger' : 'muted'} style={{ flexShrink: 1 }}>
+                {voice.error ?? (voice.listening ? 'Listening… speak now' : 'Tap the mic to speak in')}
+              </Text>
+              {voice.error || voice.listening ? null : (
+                <PressableScale
+                  onPress={() => voice.setLang(voice.lang === 'en-IN' ? 'hi-IN' : 'en-IN')}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Voice language ${voice.lang === 'en-IN' ? 'English' : 'Hindi'}. Tap to switch.`}
+                  style={[styles.langChip, { backgroundColor: colors.accentSoft }]}
+                >
+                  <Text variant="caption" tone="accent" weight="700">
+                    {voice.lang === 'en-IN' ? 'English ⇄' : 'हिंदी ⇄'}
+                  </Text>
+                </PressableScale>
+              )}
+            </View>
+          ) : null}
           <Text variant="caption" tone="muted" align="center">
             {ASSISTANT_NAME} only knows what shops have listed. Call the shop to confirm before you go.
           </Text>
@@ -176,6 +207,8 @@ const styles = StyleSheet.create({
   typing: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   bubble: { maxWidth: '88%', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 18 },
   composer: { borderTopWidth: 1, paddingHorizontal: 12, paddingTop: 8, gap: 4 },
+  voiceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  langChip: { paddingHorizontal: 10, paddingVertical: 2, borderRadius: 999 },
   inputRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
   input: { flex: 1, minHeight: 48, maxHeight: 120, borderWidth: 1, paddingHorizontal: 14, paddingTop: 13, paddingBottom: 13, fontSize: 16 },
 });
